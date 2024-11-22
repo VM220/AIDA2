@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Eligibility Checker</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background-color: #4a90e2;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 2em;
+        text-transform: uppercase;
+      }
+
+      main {
+        margin: 40px auto;
+        max-width: 600px;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #d1d1d1;
+      }
+
+      label {
+        font-size: 1.2em;
+        color: #555;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        font-size: 1.1em;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        outline: none;
+        background-color: #fafafa;
+      }
+
+      input:focus {
+        border-color: #4a90e2;
+        background-color: #f0f8ff;
+      }
+
+      button {
+        width: 48%;
+        padding: 12px;
+        font-size: 1.1em;
+        margin: 10px 1%;
+        color: white;
+        background-color: #4a90e2;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #357ab7;
+      }
+
+      #result {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f7f7f7;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1.1em;
+        color: #333;
+      }
+
+      .error {
+        color: #d32f2f;
+        font-weight: bold;
+      }
+    </style>
+    <script>
+      async function checkEligibility() {
+        const studentId = document.getElementById("studentId").value.trim();
+        const resultDiv = document.getElementById("result");
+
+        // Clear previous results
+        resultDiv.innerHTML = "";
+
+        if (!studentId) {
+          resultDiv.innerHTML =
+            '<p class="error">Please enter a valid Student ID.</p>';
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:8081/scholarship", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: studentId }), // send student_id as JSON
+          });
+          const data = await response.json();
+
+          resultDiv.innerHTML = `
+      <p><strong>Student ID:</strong> ${data.student_id}</p>
+      <p><strong>Scholarship Eligibility:</strong> ${
+        data.scholarship_eligible ? "Eligible" : "Not Eligible"
+      }</p>
+    `;
+        } catch (error) {
+          resultDiv.innerHTML = `<p class="error">Error: Could not fetch the data. Please ensure the server is running.</p>`;
+        }
+      }
+
+      async function checkExamPermission() {
+        const studentId = document.getElementById("studentId").value.trim();
+        const resultDiv = document.getElementById("result");
+
+        // Clear previous results
+        resultDiv.innerHTML = "";
+
+        if (!studentId) {
+          resultDiv.innerHTML =
+            '<p class="error">Please enter a valid Student ID.</p>';
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:8081/exam", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: studentId }), // send student_id as JSON
+          });
+          const data = await response.json();
+
+          resultDiv.innerHTML = `
+      <p><strong>Student ID:</strong> ${data.student_id}</p>
+      <p><strong>Exam Permission:</strong> ${
+        data.exam_permitted ? "Permitted" : "Not Permitted"
+      }</p>
+    `;
+        } catch (error) {
+          resultDiv.innerHTML = `<p class="error">Error: Could not fetch the data. Please ensure the server is running.</p>`;
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header>Student Eligibility Checker</header>
+    <main>
+      <label for="studentId">Enter Student ID:</label>
+      <input type="text" id="studentId" placeholder="e.g., 23BCE0275" />
+      <div style="display: flex; justify-content: space-between">
+        <button onclick="checkEligibility()">Scholarship Eligibility</button>
+        <button onclick="checkExamPermission()">Exam Permission</button>
+      </div>
+      <div id="result"></div>
+    </main>
+  </body>
+</html>
